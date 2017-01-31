@@ -1,19 +1,25 @@
 # srec_codec
 
-A library for Dart developers. It is awesome.
+Dart library to parse and write motorola SREC
 
 ## Usage
 
 A simple usage example:
 
-    import 'package:srec_codec/srec_codec.dart';
+```dart
+import 'dart:io';
+import 'package:srec_codec/srec_codec.dart';
 
-    main() {
-      var awesome = new Awesome();
-    }
+main() async {
+  final String filename = 'data/unnamed/iodesc_iqs.hps';
+  File file = new File(filename);
+  final result = await parse(file.openRead());
+  print(result);
+}
+```
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: http://example.com/issues/replaceme
+[tracker]: https://github.com/tejainece/srec_codec/issues

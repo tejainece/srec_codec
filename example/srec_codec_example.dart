@@ -4,8 +4,9 @@
 import 'dart:io';
 import 'package:srec_codec/srec_codec.dart';
 
-main() {
+main() async {
   final String filename = 'data/unnamed/iodesc_iqs.hps';
   File file = new File(filename);
-  parse(file.openRead());
+  final result = await parse(file.openRead());
+  print(result);
 }
