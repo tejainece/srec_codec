@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.3
+
+- SRec writer
+- Lot of convenient 'to' and 'parse' functions for `SRec` and `SRecView`
+
 ## 0.0.2
 
 - Added `parseSrecView` and `toSrecView` methods to handle SREC view

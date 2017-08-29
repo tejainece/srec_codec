@@ -1,6 +1,6 @@
 name: srec_codec
 description: Dart library to parse and write motorola SREC
-version: 0.0.2
+version: 0.0.3-dev
 author: Ravi Teja Gudapati <tejainece@gmail.com>
 homepage: https://github.com/tejainece/srec_codec
 documentation:

@@ -2,38 +2,54 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:args/args.dart';
-import 'package:srec_codec/src/srec_print/parser.dart';
+import 'package:srec_codec/srec_codec.dart';
+
+Future bail(String message, int code) async {
+  stdout.write(message);
+  await stdout.flush();
+  exit(1);
+}
 
 Future main(List<String> args) async {
   final argParser = new ArgParser();
   argParser.addOption('input',
       abbr: 'i', help: 'Specifies input SREC view file');
   argParser.addOption('output', abbr: 'o', help: 'Specifies output SREC file');
+  argParser.addFlag('overwrite',
+      abbr: 'w',
+      help: 'Should existing output be overwritten?',
+      defaultsTo: false);
 
   final ArgResults argRes = argParser.parse(args);
 
-  if (argRes['input'] == null) {
-    stdout.write('Input file must be specified using -i option!');
-    exit(1);
+  final String argInput = argRes['input'];
+  final String argOutput = argRes['output'];
+  final bool argOverwrite = argRes['overwrite'];
+
+  if (argInput == null) {
+    await bail('Input file must be specified using -i option!', 1);
   }
 
-  /* TODO
-  if(argRes['output'] == null) {
-    stdout.write('Output file must be specified using -o option!');
-    exit(1);
-  }
-  */
-
-  final File input = new File(argRes['input']);
+  final File input = new File(argInput);
   if (!await input.exists()) {
-    stdout.write('Input file not found!');
-    exit(1);
+    await bail('Input file not found!', 2);
   }
 
-  final Stream<String> lines =
-      input.openRead().transform(UTF8.decoder).transform(new LineSplitter());
+  final Stream<DataRecord> recs =
+      SRecView.parseRecordsByteStream(input.openRead());
 
-  await lines.map(parseSrecView).map(toSrecView).forEach(print);
-
-  //TODO
+  if (argOutput == null) {
+    recs.map((DataRecord rec) => rec.toSRec()).forEach(print);
+  } else {
+    final File output = new File(argOutput);
+    if (await output.exists() && !argOverwrite) {
+      await bail(
+          'Output file exists! Add -w overwrite flag to overwrite the existing file',
+          3);
+    }
+    final IOSink sink = output.openWrite();
+    await sink.addStream(SRec.toSRecStream(recs));
+    await sink.flush();
+    await sink.close();
+  }
 }

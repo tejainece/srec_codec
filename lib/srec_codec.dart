@@ -6,5 +6,5 @@
 /// More dartdocs go here.
 library srec_codec;
 
-export 'src/parser.dart';
-export 'src/writer.dart';
+export 'package:srec_codec/src/srec/srec.dart';
+export 'package:srec_codec/src/srec_view/parser.dart';
