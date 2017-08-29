@@ -78,6 +78,20 @@ class DataRecord implements Record {
   DataRecord(this.startAddr, this.data);
 
   int get endAddr => startAddr + data.length - 1;
+
+  String toString() {
+    final sb = new StringBuffer();
+    String addrDigits = startAddr.toRadixString(16).toUpperCase();
+    addrDigits = '0' * (8 - addrDigits.length) + addrDigits;
+    sb.write(addrDigits);
+    sb.write('\t');
+    data.forEach((int d) {
+      String digits = d.toRadixString(16).toUpperCase();
+      if(digits.length == 1) digits = '0' + digits;
+      sb.write(digits + ' ');
+    });
+    return sb.toString();
+  }
 }
 
 class TerminationRecord implements Record {
