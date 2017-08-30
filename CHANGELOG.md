@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4
+
+- srec2view command line utility
+- Bug fixes
+
 ## 0.0.3
 
 - SRec writer

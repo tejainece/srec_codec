@@ -88,8 +88,8 @@ class DataRecord implements Record {
   }
 
   int get checksum {
-    int ret = addressLen + 1;
-    ret = UInt.bytes4(endAddr).fold(ret, (int incom, int v) => incom + v);
+    int ret = addressLen + data.length + 1;
+    ret = UInt.bytes4(startAddr).fold(ret, (int incom, int v) => incom + v);
     ret = data.fold(ret, (int incom, int v) => incom + v);
     return ~ret & 0xFF;
   }
@@ -137,7 +137,7 @@ class DataRecord implements Record {
       return Hex.toUint32(data[4], data[5], data[6], data[7], data[8], data[9],
           data[10], data[11]);
     } else {
-      throw new Exception('Not a data record type!');
+      throw new Exception('Not a termination record type!');
     }
   }
 
@@ -152,7 +152,7 @@ class TerminationRecord implements Record {
   TerminationRecord(this.startAddr);
 
   factory TerminationRecord.parseSafe(List<int> data) {
-    final int addr = DataRecord.parseAddr(data, data[1]);
+    final int addr = TerminationRecord.parseAddr(data, data[1]);
     if (addr == null) {
       throw new Exception('Invalid record!');
     }

@@ -19,17 +19,12 @@ Future main(List<String> args) async {
       abbr: 'w',
       help: 'Should existing output be overwritten?',
       defaultsTo: false);
-  argParser.addFlag('terminate',
-      abbr: 't',
-      help: 'Should a termination record be added?',
-      defaultsTo: false);
 
   final ArgResults argRes = argParser.parse(args);
 
   final String argInput = argRes['input'];
   final String argOutput = argRes['output'];
   final bool argOverwrite = argRes['overwrite'];
-  final bool argTerminate = argRes['terminate'];
 
   if (argInput == null) {
     await bail('Input file must be specified using -i option!', 1);
@@ -40,14 +35,12 @@ Future main(List<String> args) async {
     await bail('Input file not found!', 2);
   }
 
-  final Stream<DataRecord> recs =
-      SRecView.parseRecordsByteStream(input.openRead());
+  final Stream<Record> recs = SRec.parseRecordsByteStream(input.openRead());
 
   if (argOutput == null) {
-    await recs.map((DataRecord rec) => rec.toSRec()).forEach(print);
-    if(argTerminate) {
-      print(new TerminationRecord(0).toSRec());
-    }
+    await (recs.where((Record r) => r is DataRecord) as Stream<DataRecord>)
+        .map(SRecView.toView)
+        .forEach(print);
   } else {
     final File output = new File(argOutput);
     if (await output.exists() && !argOverwrite) {
@@ -56,10 +49,8 @@ Future main(List<String> args) async {
           3);
     }
     final IOSink sink = output.openWrite();
-    await sink.addStream(SRec.toSRecStream(recs));
-    if(argTerminate) {
-      await sink.write(new TerminationRecord(0).toSRec());
-    }
+    await (recs.where((Record r) => r is DataRecord) as Stream<DataRecord>)
+        .map(SRecView.toView).forEach(sink.write);
     await sink.flush();
     await sink.close();
   }
